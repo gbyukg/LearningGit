@@ -1,0 +1,357 @@
+= Git 基础
+Zeliang Zhang <zzeliang@cn.ibm.com>
+2019-05-29
+:appversion: 1.0.0
+:source-highlighter: prettify
+:icons: font
+:stylesdir: ./styles
+:imagesdir: ./images
+:toc: left
+:toclevels: 4
+
+Git - 分布式版本控制系统。
+
+之所以称之为分布式，是因为 Git 会在每一个开发者本地创建一个代码库，每当开发人员完成一次开发任务后，是将代码提交到本地的代码仓库中。当进行多人协作开发时，直接将本地代码库中的代码推送到远程统一的代码库（如 GitHub）中即可。
+
+这种工作方式的优势很明显，即使在完全脱离网络的状态下，开发人员依旧可以修改并提交代码，只有在需要向远程代码库中推送代码时确保网络链接即可，这也是 Git 对比其它版本控制工具（如 SVN ）的优势之一。
+
+Git 的一个理念就是：空间换取时间。时间，即效率是人类永恒不变的追求目标，Git 作者 Linux 认为，磁盘容量越来越大，而成本却越来越低，因此用空间换取效率是很明智的选择。
+
+## 创建你的第一个 Git 仓库
+
+Git 子命令 `init` 用于创建或初始化一个 Git 仓库，它可以接收一个目录名做为参数，表示将指定的目录初始化为一个 Git 仓库，如果指定了一个不存在的目录，Git 则会自动帮助我们创建该目录，其格式为 `git init REPONAME` 。
+
+.初始化一个名为 git-tutorial 的仓库
+[source, shell]
+----
+$ git init git-tutorial
+----
+
+上面命令会在当前目录下创建一个名为 git-tutorial 的目录，并将该目录初始化为一个空的 Git 仓库，其输出信息为：
+
+----
+Initialized empty Git repository in /home/vagrant/git-tutorial/.git/
+----
+
+如果仔细观察输出结果，会发现 Git 仓库指向的是 git-tutorial 下的一个隐藏目录 `.git`。`.git` 目录是由 git init 命令创建的，它是 Git 的仓库目录, 是 Git 用来保存项目的元数据和对象数据库的地方。 这是 Git 中最重要的部分，从其它计算机克隆仓库时，拷贝的就是这里的数据。
+
+TIP: 在 Linux 系统中，通过 `ls -a` 命令显示当前文件夹下的所有隐藏文件和目录。
+
+TIP: 既然 `.git` 目录用于保存代码库中的所有信息，这也就意味着删除 `.git` 目录，等同于删除了 Git 仓库，使得 Git 仓库所在的目录变为一个普通的目录（目录下的其它文件依然会被保留，而不会因为 `.git` 文件的删除而删除）。
+
+我们也可以不为 `init` 命令指定任何目录参数，则 Git 会将当前命令行所在目录做为我们要初始化的 Git 仓库目录：
+
+[source, shell]
+----
+$ mkdir git-tutorial  # <1>
+$ cd git-tutorial     # <1>
+$ git init            # <2>
+----
+<1> 创建新目录，并进入到该目录下。
+<2> 将当前目录初始化为一个 Git 仓库。
+
+该命令运行效果与 `git init git-tutorial` 命令效果完全一样。
+
+## Git 工作区域
+在进一步了解 Git 之前，我们首先需要了解 Git 中一个非常重要的概念：Git 工作区域。
+
+Git 共分为三个工作区域，分别是 工作目录、暂存区和版本库。
+
+工作目录:: 工作目录最容易理解，它就是 Git 仓库所在的目录，我们对任何文件的修改都是在工作区完成的。在上面的例子中，目录 `git-tutorial` 就是我们的工作目录。
+
+暂存区:: 暂存区，有时也称为"索引"，用于保存下次提交代码时的所有文件信息。当我们在工作区完成改动后，并不是将改动直接提交到本地仓库中，而是将所有改动先提交到暂存区，最后在统一将暂存区中的所有文件一次性地全部提交到本地仓库，并最终生成一条提交记录，同时清空暂存区中的内容。这样做的好处有很多，当我们一次性需要改动很多文件时，可以将改动好的文件依次添加到暂存区，最终统一进行提交，这样可以避免工作区的混乱；同时，如果暂存区中有错误的提交，也可以很轻松地撤销暂存区中的改动。暂存区中的内容被保存在 `.git` 目录下。
+
+TIP: 即使代码已经被提交到仓库中，我们还有是机会撤销这些提交过的改动。
+
+Git 仓库:: 即最终保存代码的仓库（这里指的是本地仓库）。所有提交的代码都被保存在版本库中，即 `.git` 目录中。
+
+下图展示了三者之间的关系。
+
+.工作目录、暂存区以及 Git 仓库之间的关系
+image::git-areas.png[GitAreas]
+
+## 获取帮助信息
+
+Git 包含有大量的子命令，且每个子命令又可以接收许多不同的参数，完全记住这些参数的用法几乎是不可能的，因此学会使用帮助文档对我们学习和使用 Git 起着至关重要的作用。
+
+常见的有如下 4 中获取帮助文档的方式：
+
+[source, shell]
+----
+$ git init -h     #<1>
+$ git init --help #<2>
+$ git help init   #<2>
+$ main git-init   #<3>
+----
+<1> 打印 init 子命令的简短帮助文档信息。
+<2> 打印 init 子命令的完整帮助文档信息。
+<3> 同 `--help` 一样，获取完整的帮助文档信息，不过是在 man 手册中展示。
+
+TIP: 在 man 手册中，使用快捷键 `k` 向下滚动一行内容，`j` 向上滚动一行内容；`Ctrl-d` 向下滚动半屏内容，`Ctrl-u` 向上滚动半屏内容；`Ctrl-f`向下滚动一屏内容， `Ctrl-b` 向上滚动一屏内容；`g` 移动到起始行，`G` 移动到尾行；`q` 退出 man 手册。
+
+## git status：查看仓库状态
+
+在平时工作中，我们通常需要知道哪些文件做了改动，暂存区中有哪些文件会在下一次提交代码时被提交到代码库中。Git 子命令 `status` 可以帮助我们获取当前仓库的状态信息。
+
+NOTE: 如果你使用是 `git init git-tutorial` 命令来创建的 Git 仓库，在执行以下命令前，请确保你已将当前目录切换到 `git-tutorial` 目录下，在 Linux 下，使用 `cd git-tutorial` 命令将当前目录切换到 `git-tutorial` 目录下。
+
+.查看仓库状态
+[source, shell]
+----
+$ git status
+----
+
+其输出结果为：
+
+----
+On branch master  # <1>
+
+No commits yet    # <2>
+
+nothing to commit (create/copy files and use "git add" to track) # <3>
+----
+<1> 当前所在分支为 master，这也是 Git 为我们自动创建的默认分支。关于更多分支信息，请参考 <_branch>。
+<2> 当前还没有任何提交历史记录。
+
+## git add：添加改动到暂存区
+
+是时候向我们的仓库中添加一些内容了，执行下面命令：
+
+[source, shell]
+----
+$ echo "Hello World" > hello.txt
+----
+
+通过上面命令，我们创建了一个内容为 "Hello World" 的新文件 `hello.txt`，此时执行 status 命令查看当前代码库状态：
+
+[source, shell]
+----
+$ git status
+----
+
+其输出结果为：
+
+----
+On branch master
+
+No commits yet
+
+Untracked files:                                                              #<1>
+  (use "git add <file>..." to include in what will be committed)              #<1>
+
+        hello.txt                                                             #<1>
+
+nothing added to commit but untracked files present (use "git add" to track)  #<2>
+----
+<1> hello.txt 属于未追踪文件。
+<2> 提示可以使用 `git add` 命令来告诉 Git 追踪指定的文件。
+
+TIP: 大部分Git 命令在执行完成后，通常会输出一些详细的信息，包括执行的结果以及一些操作提示，所以建议大家在每次执行完 Git 命令后认真阅读这些信息。
+
+### Git 中的文件状态类型
+Git 将文件状态分为三种类型，分别是：untracked、tracked 以及 ignored。
+
+untracked:: 未追踪状态，指的是文件存在于 Git 的工作目录中，但是还未被添加到 Git 仓库，即还未被 Git 所接管的文件。对未跟踪的文件进行的任何改动都不会被 Git 所记录。所有文件在第一次被添加到 Git 工作目录时都处于未跟踪状态，这是 Git 有意而为之，来防止意外添加我们不需要跟踪的文件。命令 `git add filename` 可以将文件的状态由未追踪状态转变成追踪状态。
+
+tracked:: 与 untracked 相反，tracked 文件表示已经被 Git 所管控，任何改动都会被 Git 所追踪到，只有 tracked 的文件才能被推送到代码库中。一旦文件的处于追踪状态，那么它将一直属于该状态，除非我们显示的将该文件从 Git 仓库中移除。
+
+ignored:: ignored 文件会被 Git 直接忽略掉，无论对 ignored 的文件作何改动，Git 仓库都不会对它做任何记录，git status 命令会直接忽略被 ignored 的文件。更多详细信息，请参考 <<_git_ignore>>
+
+### 添加文件到暂存区
+我们已经知道，在将改动最终提交到 Git 仓库中时，首先需要将改动的文件添加到暂存区中。`git add` 命令用于添加文件到暂存区。如果被添加的文件属于未追踪状态，add 命令会同时将该文件状态更新为追踪状态
+
+.添加 hello.txt 文件到暂存区
+[source, shell]
+----
+$ git add hello.txt
+----
+
+再次查看当前仓库的状态信息：
+
+[source, shell]
+----
+$ git status
+----
+
+.输出结果
+----
+On branch master
+
+No commits yet
+
+Changes to be committed:                        # <1>
+  (use "git rm --cached <file>..." to unstage)
+
+        new file:   hello.txt                   # <1>
+----
+<1> 文件 hello.txt 将在下次提交代码时被提交到 Git 仓库中，并标记出这是一个新文件。
+
+通过上面的输出我们可以看到，Git 非常聪明，它知道 hello.txt 文件是我们新创建的一个文件，所以将它归类到 `new file` 列表下。类似的列表还有 `modified` 、`deleted`，通过这些信息，我们可以清楚地知道对哪些文件做了什么样的操作。
+
+TIP: add 命令不仅将 hello.txt 添加到了暂存区中，同时还将它的状态由 Untracked 改为了 Tracked
+
+### 使用通配符指定文件
+当只有少数几个文件需要添加到暂存区时，将这些文件路径做为参数传递给 add 命令是可以接受的，但当需要同时添加多个文件时，将所有文件路径信息传递给 add 命令，不但命令显得很冗长，而且容易出错。
+
+Git 考虑到此类似情况出现，添加了对通配符的支持，如：
+
+[source, shell]
+----
+$ git add .         #<1>
+$ git add *.py      #<2>
+$ git add dev-*.py  #<3>
+----
+<1> 将当前工作目录下所有改动过的文件全部添加到暂存区中。
+<2> 将所有以 `.py` 结尾的改动或新增的文件全部被添加到暂存区中。
+<3> 将所有改动或新增的以 `dev-` 开头的 `.py` 文件全部添加到暂存区中。
+
+TIP: 通配符不仅适用于 add 命令，对于所有需要指定文件名的命令，它几乎都适用。
+
+## Git commit：提交你的代码
+当所有需要提交的文件被添加到暂存区后，就可以使用 `commit` 命令将暂存区中的文件提交到代码库中。
+
+.提交代码
+[source, shell]
+----
+$ git commit
+----
+
+如果你是第一次使用 git，那么你可能会得到以下错误信息：
+
+----
+*** Please tell me who you are.                             #<1>
+
+Run
+
+  git config --global user.email "you@example.com"          #<2>
+  git config --global user.name "Your Name"                 #<2>
+
+to set your account's default identity.                     #<2>
+Omit --global to set the identity only in this repository.  #<2>
+
+fatal: unable to auto-detect email address (got 'vagrant@ubuntu-bionic.(none)')
+----
+<1> 错误提示，Git 需要知道是谁在提交代码。
+<2> Git 如何指定代码提交作者的信息。
+
+之所以出现这个错误，是因为每一次提交代码，都会生成一条提交记录，里面记录了代码的作者（姓名和邮箱）、提交时间、提交代码时的备注等信息。因此在提交代码前，我们需要告诉 Git 我们是谁，Git 通过读取配置文件来获取这些信息。
+
+### 配置提交者信息
+由于是第一次使用 Git，还没有为 Git 设定任何配置文件，虽然大部分配置都有一个默认值，但是对用代码提交者的信息，我们必须手动为其配置。
+
+根据给定的提示信息，使用 `config` 命令为 Git 设置适当的值，更多关于 Git 配置相关信息，请参考 <git config>：
+
+.为 Git 配置用户信息
+[source, shell]
+----
+$ git config --global user.emali "zzeliang@cn.ibm.com"  #<1>
+$ git config --global user.name "zzeliang"              #<2>
+----
+<1> 设定作者邮箱信息。
+<2> 设定作者姓名信息。
+
+还可以通过 `--get` 参数获取当前配置文件中的值。
+
+.获取当前设定的作者信息
+[source, shell]
+----
+$ git config --global --get user.name
+zzeliang
+$ git config --global --get user.email
+zzeliang@cn.ibm.com
+----
+
+### 设置默认编辑器
+另一个你可能需要配置的属性是 Git 所使用的默认编辑器。
+
+Git 强制我们为每一次的代码提交提供 commit 信息，用于对本次代码提交做简短的说明。当我们使用 `commit` 命令提交代码时，Git 会自动为我们打开当前系统的默认编辑器来编辑本次的 commit 信息，如果你想 Git 为你打开其它编辑器，而非系统当前默认编辑器，可以将编辑器路径信息指定给 Git `core.editor` 属性。
+
+.配置 VIM 做为默认的编辑器
+[source, shell]
+----
+$ git config --global core.editor vim #<1>
+----
+<1> 将 VIM 设定为 Git 的默认编辑器。如果 vim 不存在全局路径中，则需要指定 vim 的完整路径信息。
+
+TIP: VIM 快捷键提示：快捷键 `i` 进入编辑模式，`ESC` 退出到 normal 模式，`:w` 保存改动的内容，`:q` 退出 VIM。
+
+### 开始提交
+一切准备就绪后，再次执行 `git commit` 命令提交代码，Git 会直接打开 VIM 编辑器，如下图：
+
+image::git-commit-vim.png[GitCommit]
+
+输入 commit 信息之后保存退出，得到如下输出结果：
+
+----
+[master (root-commit) 57bbf81] My first commit  #<1>
+ 1 file changed, 1 insertion(+)                 #<2>
+ create mode 100644 hello.txt                   #<3>
+----
+<1> 本次提交的 commit 信息。
+<2> 本次提交共有一个文件被修改，其中新增了一行内容。
+<3> 新文件 hello.txt 被创建。
+
+上面的输出表明代码已经被成功提交，并概括了我们本次提交的信息，再次查看 Git 状态：
+
+[source, shell]
+----
+$ git status
+On branch master
+nothing to commit, working tree clean
+----
+
+因为我们已经将 hello.txt 文件的改动提交到了 Git 仓库中，所以当前工作目录中已经没有任何改动信息了。
+
+### 提交的同时指定 commit 信息
+如果所要提交的 commit 信息比较简单，我们可以通过 `-m` 参数将 commit 信息直接传递给 git 命令。
+
+修改 hello.txt 文件内容：
+[source, shell]
+----
+$ echo "Hello Git" > hello.txt #<1>
+$ cat hello.txt                #<2>
+Hello Git
+----
+<1> 修改 hello.txt 文件中的内容。
+<2> 查看修改后的 hello.txt 文件中的内容。
+
+查看当前 Git 仓库状态信息：
+
+[source, shell]
+----
+$ git status -s
+----
+
+在这里，我们为 status 命令指定了 `-s` 参数，该参数告诉 status 命令将当前 Git 的状态信息以简洁的方式展现出来。
+
+.展示当前 Git 状态的简洁信息
+[source, shell]
+----
+ M hello.txt
+----
+
+其中 `M` 代表 modified，表示文件有更新操作，类似的还有：
+
+- `A`：Added - 新创建的文件。
+- `D`：Deleted - 文件被删除。
+- `R`：Rename - 文件被重命名。
+- `??`：未被跟踪的文件。
+
+完整列表请查看 status 的帮助信息。
+
+执行下面命令，将改动提交到代码仓库中：
+
+[source, shell]
+----
+$ git commit -a -m "Hello Git"                  #<1>
+[master 4c9cbe6] Hello Git
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+----
+<1> 通过 `-m` 参数指定了 commit 信息。
+
+通过返回结果我们可以看到，本次提交已经成功。但是，前文中我们曾提到，在提交代码之前，不是需要先将改动的文件通过 `add` 命令添加到暂存区后，才可以被最终提交到代码库中去么？为什么这次没有先将改动的文件添加到暂存区，而是直接提交到代码库中去了呢？
+
+其实这种说法并没有错。因为在本例中，我们使用了 `-a` 参数：自动将工作目录下有改动的文件添加到暂存区后，在做提交。
+
+NOTE: `-a` 参数仅对 tracked 状态的文件有效，对于那些还是 untracked 的文件，`-a` 参数并不会把他们提交到代码库中去。
+
