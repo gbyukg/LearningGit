@@ -8,6 +8,7 @@ Zeliang Zhang <zzeliang@cn.ibm.com>
 :imagesdir: ./images
 :toc: left
 :toclevels: 4
+:toc-title: Git 基础
 
 Git - 分布式版本控制系统。
 
@@ -15,9 +16,7 @@ Git - 分布式版本控制系统。
 
 这种工作方式的优势很明显，即使在完全脱离网络的状态下，开发人员依旧可以修改并提交代码，只有在需要向远程代码库中推送代码时确保网络链接即可，这也是 Git 对比其它版本控制工具（如 SVN ）的优势之一。
 
-Git 的一个理念就是：空间换取时间。时间，即效率是人类永恒不变的追求目标，Git 作者 Linus 认为，磁盘容量越来越大，而成本却越来越低，因此用空间换取效率是很明智的选择。
-
-## 创建你的第一个 Git 仓库
+== 创建你的第一个 Git 仓库
 
 Git 子命令 `init` 用于创建或初始化一个 Git 仓库，它可以接收一个目录名做为参数，表示将指定的目录初始化为一个 Git 仓库，如果指定了一个不存在的目录，Git 则会自动帮助我们创建该目录，其格式为 `git init REPONAME` 。
 
@@ -52,7 +51,7 @@ $ git init            # <2>
 
 该命令运行效果与 `git init git-tutorial` 命令效果完全一样。
 
-## Git 工作区域
+== Git 工作区域
 在进一步了解 Git 之前，我们首先需要了解 Git 中一个非常重要的概念：Git 工作区域。
 
 Git 共分为三个工作区域，分别是 工作目录、暂存区和版本库。
@@ -70,7 +69,7 @@ Git 仓库:: 即最终保存代码的仓库（这里指的是本地仓库）。�
 .工作目录、暂存区以及 Git 仓库之间的关系
 image::git-areas.png[GitAreas]
 
-## 获取帮助信息
+== 获取帮助信息
 
 Git 包含有大量的子命令，且每个子命令又可以接收许多不同的参数，完全记住这些参数的用法几乎是不可能的，因此学会使用帮助文档对我们学习和使用 Git 起着至关重要的作用。
 
@@ -89,7 +88,7 @@ $ man git-init    #<3>
 
 TIP: 在 man 手册中，使用快捷键 `k` 向下滚动一行内容，`j` 向上滚动一行内容；`Ctrl-d` 向下滚动半屏内容，`Ctrl-u` 向上滚动半屏内容；`Ctrl-f`向下滚动一屏内容， `Ctrl-b` 向上滚动一屏内容；`g` 移动到起始行，`G` 移动到尾行；`q` 退出 man 手册。
 
-## git status：查看仓库状态
+== git status：查看仓库状态
 
 在平时工作中，我们通常需要知道哪些文件做了改动，暂存区中有哪些文件会在下一次提交代码时被提交到代码库中。Git 子命令 `status` 可以帮助我们获取当前仓库的状态信息。
 
@@ -113,7 +112,7 @@ nothing to commit (create/copy files and use "git add" to track) # <3>
 <1> 当前所在分支为 master，这也是 Git 为我们自动创建的默认分支。关于更多分支信息，请参考 <_branch>。
 <2> 当前还没有任何提交历史记录。
 
-## git add：添加改动到暂存区
+== git add：添加改动文件到暂存区
 
 是时候向我们的仓库中添加一些内容了，执行下面命令：
 
@@ -143,13 +142,13 @@ Untracked files:                                                              #<
 
 nothing added to commit but untracked files present (use "git add" to track)  #<2>
 ----
-<1> hello.txt 属于未追踪文件。
-<2> 提示可以使用 `git add` 命令来告诉 Git 追踪指定的文件。
+<1> hello.txt 处于未追踪状态。
+<2> 提示我们可以使用 `git add` 命令来告诉 Git 追踪指定的文件。
 
 TIP: 大部分Git 命令在执行完成后，通常会输出一些详细的信息，包括执行的结果以及一些操作提示，所以建议大家在每次执行完 Git 命令后认真阅读这些信息。
 
-### Git 中的文件状态类型
-Git 将文件状态分为三种类型，分别是：untracked、tracked 以及 ignored。
+=== Git 中的文件状态类型
+在 Git 中，有三种类型，分别是：untracked、tracked 以及 ignored。
 
 untracked:: 未追踪状态，指的是文件存在于 Git 的工作目录中，但是还未被添加到 Git 仓库，即还未被 Git 所接管的文件。对未跟踪的文件进行的任何改动都不会被 Git 所记录。所有文件在第一次被添加到 Git 工作目录时都处于未跟踪状态，这是 Git 有意而为之，来防止意外添加我们不需要跟踪的文件。命令 `git add filename` 可以将文件的状态由未追踪状态转变成追踪状态。
 
@@ -157,7 +156,7 @@ tracked:: 与 untracked 相反，tracked 文件表示已经被 Git 所管控，�
 
 ignored:: ignored 文件会被 Git 直接忽略掉，无论对 ignored 的文件作何改动，Git 仓库都不会对它做任何记录，git status 命令会直接忽略被 ignored 的文件。更多详细信息，请参考 <<_git_ignore>>
 
-### 添加文件到暂存区
+=== 添加文件到暂存区
 我们已经知道，在将改动最终提交到 Git 仓库中时，首先需要将改动的文件添加到暂存区中。`git add` 命令用于添加文件到暂存区。如果被添加的文件属于未追踪状态，add 命令会同时将该文件状态更新为追踪状态
 
 .添加 hello.txt 文件到暂存区
@@ -190,7 +189,7 @@ Changes to be committed:                        # <1>
 
 TIP: add 命令不仅将 hello.txt 添加到了暂存区中，同时还将它的状态由 Untracked 改为了 Tracked
 
-### 使用通配符指定文件
+=== 使用通配符指定文件
 当只有少数几个文件需要添加到暂存区时，将这些文件路径做为参数传递给 add 命令是可以接受的，但当需要同时添加多个文件时，将所有文件路径信息传递给 add 命令，不但命令显得很冗长，而且容易出错。
 
 Git 考虑到此类似情况出现，添加了对通配符的支持，如：
@@ -207,7 +206,7 @@ $ git add dev-*.py  #<3>
 
 TIP: 通配符不仅适用于 add 命令，对于所有需要指定文件名的命令，它几乎都适用。
 
-## Git commit：提交你的代码
+== Git commit：提交你的代码
 当所有需要提交的文件被添加到暂存区后，就可以使用 `commit` 命令将暂存区中的文件提交到代码库中。
 
 .提交代码
@@ -236,7 +235,7 @@ fatal: unable to auto-detect email address (got 'vagrant@ubuntu-bionic.(none)')
 
 之所以出现这个错误，是因为每一次提交代码，都会生成一条提交记录，里面记录了代码的作者（姓名和邮箱）、提交时间、提交代码时的备注等信息。因此在提交代码前，我们需要告诉 Git 我们是谁，Git 通过读取配置文件来获取这些信息。
 
-### 配置提交者信息
+=== 配置提交者信息
 由于是第一次使用 Git，还没有为 Git 设定任何配置文件，虽然大部分配置都有一个默认值，但是对用代码提交者的信息，我们必须手动为其配置。
 
 根据给定的提示信息，使用 `config` 命令为 Git 设置适当的值，更多关于 Git 配置相关信息，请参考 <git config>：
@@ -261,10 +260,10 @@ $ git config --global --get user.email
 zzeliang@cn.ibm.com
 ----
 
-### 设置默认编辑器
+=== 设置默认编辑器
 另一个你可能需要配置的属性是 Git 所使用的默认编辑器。
 
-Git 强制我们为每一次的代码提交提供 commit 信息，用于对本次代码提交做简短的说明。当我们使用 `commit` 命令提交代码时，Git 会自动为我们打开当前系统的默认编辑器来编辑本次的 commit 信息，如果你想 Git 为你打开其它编辑器，而非系统当前默认编辑器，可以将编辑器路径信息指定给 Git `core.editor` 属性。
+Git 强制我们为每一次的代码提交提供 commit 信息，做为本次代码提交的简短说明，你可以编写任何你向写的内容做为本次提交的说明，但通常。当我们使用 `commit` 命令提交代码时，Git 会自动为我们打开当前系统的默认编辑器来编辑本次的 commit 信息，如果你想 Git 为你打开其它编辑器，而非系统当前默认编辑器，可以将编辑器路径信息指定给 Git `core.editor` 属性。
 
 .配置 VIM 做为默认的编辑器
 [source, shell]
@@ -275,7 +274,7 @@ $ git config --global core.editor vim #<1>
 
 TIP: VIM 快捷键提示：快捷键 `i` 进入编辑模式，`ESC` 退出到 normal 模式，`:w` 保存改动的内容，`:q` 退出 VIM。
 
-### 开始提交
+=== 开始提交
 一切准备就绪后，再次执行 `git commit` 命令提交代码，Git 会直接打开 VIM 编辑器，如下图：
 
 image::git-commit-vim.png[GitCommit]
@@ -300,9 +299,9 @@ On branch master
 nothing to commit, working tree clean
 ----
 
-因为我们已经将 hello.txt 文件的改动提交到了 Git 仓库中，所以当前工作目录中已经没有任何改动信息了。
+因为我们已经将 hello.txt 文件的改动提交到了 Git 仓库中，所以此时工作目录中已经没有任何改动信息了。
 
-### 提交的同时指定 commit 信息
+=== 提交的同时指定 commit 信息
 如果所要提交的 commit 信息比较简单，我们可以通过 `-m` 参数将 commit 信息直接传递给 git 命令。
 
 修改 hello.txt 文件内容：
@@ -351,13 +350,159 @@ $ git commit -a -m "Hello Git"                  #<1>
 
 通过返回结果我们可以看到，本次提交已经成功。但是，前文中我们曾提到，在提交代码之前，不是需要先将改动的文件通过 `add` 命令添加到暂存区后，才可以被最终提交到代码库中去么？为什么这次没有先将改动的文件添加到暂存区，而是直接提交到代码库中去了呢？
 
-其实这种说法并没有错。因为在本例中，我们使用了 `-a` 参数：自动将工作目录下有改动的文件添加到暂存区后，在做提交。
+其实这种说法并没有错。因为在本例中，我们使用了 `-a` 参数：自动将工作目录下所有改动的文件添加到暂存区后，在做提交。
 
 NOTE: `-a` 参数仅对 tracked 状态的文件有效，对于那些还是 untracked 的文件，`-a` 参数并不会把他们提交到代码库中去。
 
-## 练习
-1. 创建了一个内容为 "Learning Git" 的新文件 `practice.txt`
-2. 查看仓库状态
-3. 添加文件到暂存区
-4. 提交新建的文件到主库，提交信息为 "First draft of learning git"
-5. 查看有没有未追踪状态的文件
+NOTE: 在使用 `-a` 参数前，请确保你的工作区中所有的改动都需要被提交。
+
+另一种可以忽略手动添加文件到暂存区后在提交的方式是，在 commit 的同时指定文件名，如：
+
+[source, shell]
+----
+$ git commit -m "Hello Git" hello.txt
+[master 0b1e029] Hello Git
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+----
+
+TIP: 类似 add 命令，我们以可以使用通配符来同时对多个文件进行提交。
+
+== git log: 查看历史提交记录
+每次提交代码后，Git 都会为我们自动生成一条提交记录，通过查看提交记录，我们可以很方便的追踪代码的历史修改记录。
+
+Git 子命令 `log` 用于查看所有的历史提交记录，并按照提交 commit 时的时间顺序由近到远打印出来。
+
+[source, shell]
+----
+$ git log
+commit 4c9cbe6c236c382ac1eedd33730c9aa5601c1467 (HEAD -> master)  #<1>
+Author: zzeliang <zzeliang@cn.ibm.com>                            #<2>
+Date:   Thu May 30 13:06:14 2019 +0000                            #<3>
+
+    Hello Git                                                     #<4>
+
+commit 57bbf8161c97191136665b6509c60f1e73478473
+Author: zzeliang <zzeliang@cn.ibm.com>
+Date:   Thu May 30 06:17:14 2019 +0000
+
+    My first commit
+----
+<1> `4c9cbe...` 是本次提交生成的 SHA 值，HEAD → master 表明当前的 HEADER 与 master 分支同时指向该 SHA 值，更多关于 SHA 信息，请参考 <branch>。
+<2> commit 的作者信息，包括姓名和邮箱。
+<3> 提交日期。
+<4> 提交时的 commit 信息。
+
+在这个例子中，我们没有为 log 指定任何参数，所有日志信息按照默认格式全部打印出来。
+
+TIP: 如果历史记录过多导致当前屏幕无法将日志全部展示出来时，Git 则以交互模式展示历史记录。在交互模式下，`j` 用于向下滚动一行内容，`k` 用于向上滚动一行内容，`q` 用于退出交互模式。
+
+=== git log 的一些高级用法
+Git log 命令为我们提供了大量的可选参数，通过这些参数，我们可以对历史记录进行格式化输出、过滤输出结果、搜索特定提交记录，查看某次提交的改动内容等功能。
+
+为了演示这些功能，首先让我们生成一些历史提交记录：
+
+. 添加新文件 pipeline.groovy，并写入指定内容。
++
+[source, shell]
+----
+$ cat <<EOF > pipeline.groovy
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                 sh 'make'
+            }
+        }
+    }
+}
+EOF
+----
++
+提交改动：
++
+[source, shell]
+----
+$ git add pipeline.groovy       #<1>
+$ git commit -m "Add pipeline"
+----
+<1> 由于 pipeline.groovy 是新创建的文件，此时还处于 untracked 状态，所以需要使用 add 命令手动添加到暂存区中。
+
+. 修改 pipeline.groovy 文件，在第 8 行后增加：
++
+----
+        stage('Test') {
+            steps {
+                sh 'make check'
+                junit 'reports/**/*.xml'
+            }
+        }
+----
++
+提交代码：
++
+[source, shell]
+----
+$ git commit -am "Add Test state" #<1>
+----
+<1> `-am` 是参数 `-a` 和 参数 `-m` 的简写模式。
+
+. 在 14 行后增加：
++
+[source, shell]
+----
+        stage('Deploy') {
+            steps {
+                sh 'make publish'
+            }
+        }
+----
++
+再次提交代码：
++
+[source, shell]
+----
+$ git commit -am "Add Deploy stage"
+----
+
+至此，我们的 Git 仓库中已经有 5 条 commit 历史记录了。
+
+==== 格式化输出历史记录
+首先让我们看一下，如果使用不同的格式展示提交历史记录。采用不同的格式输出，不仅仅是输出格式的不同，输出的内容项也会有所不同。
+
+git log 的 `--pretty` 参数用于控制使用何种输出格式，它可以接收两种类型的格式做为它的值：
+
+内置格式::
+Git 内置一些特定值做为该参数的值，用于以指定的格式输出日志信息，这些内置值包括：`oneline`、`short`、`medium`、`full`、`fuller`。
++
+[source, shell]
+----
+$ git log --pretty=oneline  #<1>
+4251c0b242eac80f42efaef9f175b87e1872c2f8 (HEAD -> master) Add Deploy stage
+ad61a1b7fe374116dcb8fe76ebd44411d286999f Add Test state
+83428e58dc5e21b2845ed551e5e81c6af678c0ae Add pipeline
+f495a8d33987e1192985ce93ed6959b39297d6db Hello Git
+57bbf8161c97191136665b6509c60f1e73478473 My first commit
+----
+<1> 使用 `oneline` 格式输出，显示 commit 的 SHA 值即 commit 信息，每条 commit 占用一行。
++
+请自己动手实践，观察其它内置值的输出格式有何不同。
+
+自定义格式::
+若内置格式无法满足我们的需求是，也可以使用 `format:<string>` 的方式自定义输出格式，其中 `string` 是由一系列格式占位符组成，如：
+[source, shell]
+----
+$ git log --pretty=format:%h  #<1>
+4251c0b
+ad61a1b
+83428e5
+f495a8d
+57bbf81
+----
+<1> 占位符 `%h` 代表 commit SHA 前 7 位。
+
+关于更多格式信息，请参考 https://git-scm.com/docs/pretty-formats[pretty formats]。
+
+=== 过滤历史记录
+
+=== 搜索
