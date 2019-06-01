@@ -526,3 +526,41 @@ f495a8d
 <1> 占位符 `%h` 代表 commit SHA 前 7 位。
 
 更多关于格式的信息，请参考 https://git-scm.com/docs/pretty-formats[pretty formats]。
+
+==== 查看 commit 改动的内容差异
+获取 commit 历史提交的概括信息固然很有用，但有些时候，我们更多的是希望看到 commit 中具体改动的内容是什么。参数 `-p` 会将每次 commit 提交的内容差异展示出来，如：
+
+[source, shell]
+----
+$ git log -p -n 1                                                 #<1>
+commit 4251c0b242eac80f42efaef9f175b87e1872c2f8 (HEAD -> master)  #<2>
+Author: zzeliang <zzeliang@cn.ibm.com>                            #<2>
+Date:   Fri May 31 12:43:56 2019 +0000                            #<2>
+
+    Add Deploy stage                                              #<2>
+
+diff --git a/pipeline.groovy b/pipeline.groovy                    #<3>
+index 5f9bad7..f9ead1d 100644                                     #<4>
+--- a/pipeline.groovy
++++ b/pipeline.groovy
+@@ -12,5 +12,10 @@ pipeline {
+                 junit 'reports/**/*.xml'
+             }
+         }
++        stage('Deploy') {                                        #<5>
++            steps {                                              #<5>
++                sh 'make publish'                                #<5>
++            }                                                    #<5>
++        }                                                        #<5>
+     }
+ }
+----
+<1> 通过指定 `-p` 参数获取 commit 中修改的内容差异信息。
+<2> commit 的概括信息。
+<3> 在该 commit 中，我们对 pipeline.groovy 文件进行了修改，并用 a、b 将在 commit 之前与 commit 之后的同一文件标识成了两个文件。
+<4> commit 前与 commit 后 pipeline.groovy 文件的 SHA 值分别为 `5f9bad7` 和 `f9ead1d` 。
+<5> 每一行前面的 `+` 表明在该 commit 中新增的内容，相应的，`-` 表明在 commit 中删除的内容。
+
+在这个例子中，我们通过指定 `-p` 参数后，除了显示 commit 的概要信息之外，在该 commit 中修改的内容差异也一并被展示了出来。
+
+我们同时还指定了 `-n 1` 参数，`-n` 参数用于限制显示的历史记录条数，后面跟随一个正整数指明要显示的历史数目，因此这里的 `-n 1` 参数的含义是显示最后一次的历史提交记录。`-n NUM` 参数不仅局限于与 `-p` 参数一起使用，它几乎可以与任何其它参数一起使用，后面我们会看到更多的示例。
