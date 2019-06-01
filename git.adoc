@@ -16,6 +16,43 @@ Git - 分布式版本控制系统。
 
 这种工作方式的优势很明显，即使在完全脱离网络的状态下，开发人员依旧可以修改并提交代码，只有在需要向远程代码库中推送代码时确保网络链接即可，这也是 Git 对比其它版本控制工具（如 SVN ）的优势之一。
 
+== 了解 Git 工作流
+
+* 获取 repository
+    - 通过 `git init`, 或者 `git clone`，或者你已经有repository, `git pull`获取更新
+* 做更改 （添加，编辑，删除等）
+    - 用自己喜欢的编辑器或者IDE
+        - 几乎所有的IDE都有Git即成，如 IntelliJ, Eclipse, NetBeans等
+*   添加文件到暂存区
+    - 通过 `git add`
+*   提交你的更改
+    - 通过  `git commit -m "标注这次更改和提交的原因"`
+*   提交到远程的repository
+    - `git push *remotename* _localhostbranch:remotebranch_`
+
+.了解 Git 工作流
+image::git-workflow.png[Understanding Git Workflow]
+
+== 检查 Git 安装
+*   检查你电脑是否有Git安装
+[source, shell]
+----
+    $ git --version
+      git version 2.21.0
+----
+*   如果没有，下载并安装 
+    - https://git-scm.com/
+*   设置你的 Git 用户名和邮箱
+[source, shell]
+----
+$ git config --global user.emali "you@example.com"
+$ git config --global user.name "Your Name" 
+----
+
+*   如何用户名和密码只输入一次
+    - https://help.github.com/articles/generating-ssh-keys
+
+
 == 创建你的第一个 Git 仓库
 
 Git 子命令 `init` 用于创建或初始化一个 Git 仓库，它可以接收一个目录名做为参数，表示将指定的目录初始化为一个 Git 仓库，如果指定了一个不存在的目录，Git 则会自动帮助我们创建该目录，其格式为 `git init REPONAME` 。
@@ -366,6 +403,10 @@ $ git commit -m "Hello Git" hello.txt
 ----
 
 TIP: 类似 add 命令，我们以可以使用通配符来同时对多个文件进行提交。
+
+== Git 工作流程的可视化
+.Git 可视化工作流程
+image::git-standard-workflow.png[Git Workflow visualization - standard workflow]
 
 == git diff
 查看暂存区中改动的内容
