@@ -1,6 +1,8 @@
 = Git 基础
-Zeliang Zhang <zzeliang@cn.ibm.com>
-2019-05-29
+:author: Ali Naqvi
+:email: naqvis@cn.ibm.com
+:author: Zhang Zeliang
+:email: <zzeliang@cn.ibm.com>
 :appversion: 1.0.0
 :source-highlighter: prettify
 :icons: font
