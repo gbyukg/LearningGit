@@ -628,7 +628,7 @@ Date:   Thu May 30 06:17:14 2019 +0000
 
     My first commit
 ----
-<1> `4c9cbe...` 是本次提交生成的 SHA 值，HEAD → master 表明当前的 HEADER 与 master 分支同时指向该 SHA 值，更多关于 SHA 信息，请参考 <branch>。
+<1> `4c9cbe...` 是本次提交生成的 SHA 值，HEAD → master 表明当前的 HEADER 与 master 分支同时指向该 SHA 值。
 <2> commit 的作者信息，包括姓名和邮箱。
 <3> 提交日期。
 <4> 提交时的 commit 信息。
@@ -778,28 +778,26 @@ Date:   Fri May 31 12:43:56 2019 +0000                            #<2>
     Add Deploy stage                                              #<2>
 
 diff --git a/pipeline.groovy b/pipeline.groovy                    #<3>
-index 5f9bad7..f9ead1d 100644                                     #<4>
---- a/pipeline.groovy
-+++ b/pipeline.groovy
-@@ -12,5 +12,10 @@ pipeline {
-                 junit 'reports/**/*.xml'
-             }
-         }
-+        stage('Deploy') {                                        #<5>
-+            steps {                                              #<5>
-+                sh 'make publish'                                #<5>
-+            }                                                    #<5>
-+        }                                                        #<5>
+index 5f9bad7..f9ead1d 100644                                     #<3>
+--- a/pipeline.groovy                                             #<3>
++++ b/pipeline.groovy                                             #<3>
+@@ -12,5 +12,10 @@ pipeline {                                     #<3>
+                 junit 'reports/**/*.xml'                         #<3>
+             }                                                    #<3>
+         }                                                        #<3>
++        stage('Deploy') {                                        #<3>
++            steps {                                              #<3>
++                sh 'make publish'                                #<3>
++            }                                                    #<3>
++        }                                                        #<3>
      }
  }
 ----
 <1> 通过指定 `-p` 参数获取 commit 中修改的内容差异信息。
 <2> commit 的概括信息。
-<3> 在该 commit 中，我们对 pipeline.groovy 文件进行了修改，并用 a、b 将在 commit 之前与 commit 之后的同一文件标识成了两个文件。
-<4> commit 前与 commit 后 pipeline.groovy 文件的 SHA 值分别为 `5f9bad7` 和 `f9ead1d` 。
-<5> 每一行前面的 `+` 表明在该 commit 中新增的内容，相应的，`-` 表明在 commit 中删除的内容。
+<3> 相对于上次提交，本次提交的改动差异，与 `git diff` 命令使用的格式一致。
 
-在这个例子中，我们通过指定 `-p` 参数后，除了显示 commit 的概要信息之外，在该 commit 中修改的内容差异也一并被展示了出来。
+在这个例子中，我们通过指定 `-p` 参数后，除了显示 commit 的概要信息之外，同时还显示出了相对于该 commit 的父 commit 之间的内容差异。
 
 我们同时还指定了 `-n 1` 参数，`-n` 参数用于限制显示的历史记录条数，后面跟随一个正整数指明要显示的历史数目，因此这里的 `-n 1` 参数的含义是显示最后一次的历史提交记录。`-n NUM` 参数不仅局限于与 `-p` 参数一起使用，它几乎可以与任何其它参数一起使用，后面我们会看到更多的示例。
 
@@ -867,3 +865,35 @@ $ git log -- pipeline.groovy #<1>
 $ git log -S"stage('Test')" #<1>
 ----
 <1> 获取所有含有 `stage("Test")` 改动内容的 commit 记录。
+
+=== 获取 commit 之间的内容差异
+通过为 `git log` 指定 `-p` 参数，我们就可以获取到两个相邻 commit 之间的内容差异，同样的功能，我们也可以使用前面学到的 `git diff` 命令来实现，并且可以实现的更好，因为我们可以将任意两个 commit 的 SHA 值做为参数传递给 `git diff` 命令，实现任意两个 commit 之间的对比。
+
+[source, shell]
+----
+git diff 83428e5 4251c0b                        #<1>
+diff --git a/pipeline.groovy b/pipeline.groovy
+index 9ad84c9..f9ead1d 100644
+--- a/pipeline.groovy
++++ b/pipeline.groovy
+@@ -6,5 +6,16 @@ pipeline {
+                  sh 'make'
+             }
+         }
++        stage('Test') {
++            steps {
++                sh 'make check'
++                junit 'reports/**/*.xml'
++            }
++        }
++        stage('Deploy') {
++            steps {
++                sh 'make publish'
++            }
++        }
+     }
+ }
+----
+<1> 指定两次 commit 的 SHA 值做为参数。
+
+可以看到，虽然指定的这两次 commit 的并不相邻，但 `git diff` 还是将两次 commit 之间的所有差异都对比了出来。
