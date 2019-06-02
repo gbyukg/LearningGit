@@ -329,6 +329,10 @@ image::git-commit-vim.png[GitCommit]
 
 在输出结果的第一行中，Git 除了告诉我们 commit 注释信息之外，还提供了一些额外的信息：
 
+* `master`：说明本次 commit 被提交到了 master 分支，也就是我们当前所在的默认分支下。更多关于分支的信息，请参考 <<分支>>。
+* `(root-commit)`：由于这是我们的第一个提交，所以本次提交被称为 root-commit，即根提交。除了 root-commit 外，每个 commit 都会有一个父 commit，即任何一个 commit 都是基于另一个 commit 所做的提交。如果我们知道某一次 commit 提交，就可以根据它的 父 commit 一直追踪到 root-commit。
+* `57bbf81`：本次提交对应的 SHA 值。Git 会为每次 commit 生成一个全局唯一的 SHA 值，用于标识出本次的 commit 提交。我们可以将它理解为 commit 的 ID，Git 正是通过这些 SHA 值来追踪所有的 commit 信息。 SHA 值是由 20 个字节组成的一串数字，通常使用 40 个十六进制数表示（两个十六进制数表示一个字节），所以每一位的取值范围为 [0-9,a-f]。但是这里却仅仅显示了 7 个十六进制，这是 SHA 的简写模式，用前 7 位代替整个 SHA 值，这是因为，SHA 值的前 7 位足以用于标识出一个唯一的 SHA 值了。
+
 上面的输出表明代码已经被成功提交，并概括了我们本次提交的信息，再次查看 Git 状态：
 
 [source, shell]
