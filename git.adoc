@@ -153,6 +153,9 @@ nothing to commit (create/copy files and use "git add" to track) # <3>
 
 == git add：添加改动文件到暂存区
 
+.git add 添加文件到暂存区
+image::git-add.png[git add]
+
 是时候向我们的仓库中添加一些内容了，执行下面命令：
 
 [source, shell]
@@ -193,7 +196,7 @@ untracked:: 未追踪状态，指的是文件存在于 Git 的工作目录中，
 
 tracked:: 与 untracked 相反，tracked 文件表示已经被 Git 所管控，任何改动都会被 Git 所追踪到，只有 tracked 的文件才能被推送到代码库中。一旦文件的处于追踪状态，那么它将一直属于该状态，除非我们显示的将该文件从 Git 仓库中移除。
 
-ignored:: ignored 文件会被 Git 直接忽略掉，无论对 ignored 的文件作何改动，Git 仓库都不会对它做任何记录，git status 命令会直接忽略被 ignored 的文件。更多详细信息，请参考 <<_git_ignore>>
+ignored:: ignored 文件会被 Git 直接忽略掉，无论对 ignored 的文件作何改动，Git 仓库都不会对它做任何记录，git status 命令会直接忽略被 ignored 的文件。更多详细信息，请参考 <<_gitignore_文件, .gitignore 文件>>
 
 === 添加文件到暂存区
 我们已经知道，在将改动最终提交到 Git 仓库中时，首先需要将改动的文件添加到暂存区中。`git add` 命令用于添加文件到暂存区。如果被添加的文件属于未追踪状态，add 命令会同时将该文件状态更新为追踪状态
@@ -246,6 +249,10 @@ $ git add dev-*.py  #<3>
 TIP: 通配符不仅适用于 add 命令，对于所有需要指定文件名的命令，它几乎都适用。
 
 == git commit：提交你的代码
+
+.git commit 提交代码到本地代码仓库
+image::git-commit.png[git commit]
+
 当所有需要提交的文件被添加到暂存区后，就可以使用 `commit` 命令将暂存区中的文件提交到代码库中。
 
 .提交代码
@@ -416,6 +423,9 @@ image::git-standard-workflow.png[Git Workflow visualization - standard workflow]
 `git diff` 命令就是用于获取这些改动信息的工具，它将这些改动信息通过差异对比的方式展示出来，通过这些差异信息，我们可以得知一个文件新增了哪些内容，以及删除了哪些内容。
 
 既然是差异对比，那么一定是两个文件，或是同一文件在两种状态下进行对比的结果。还记得我们前面讲过的 Git 工作区么？Git 共有三个工作区域，分别是：工作目录、暂存区以及代码库，这里的差异对比就是对比同一文件内容在不同工作区域下的内容差异。
+
+.git diff 获取文件差异
+image::git-diff.png[git diff]
 
 === 准备工作
 既然 `git diff` 是在 Git 的三个工作区之间做对比，因此在介绍此命令前，让我们先做一些改动，确保三个工作区间包含差异代码。
@@ -588,7 +598,24 @@ index 9f4d96d..45be25b 100644
 +Line6
 ----
 
-在这个例子中，我们没有指定任何 SHA 值，而是使用了 HEAD 参数。这是因为在 Git 中，HEAD 包含有特殊的含义，它代表了当前 Git 仓库所指向的 commit 引用，通常是最后一次提交的 commit 信息，Git 能够自动解析出 HEAD 的值并进行对比操作。
+在这个例子中，我们没有指定任何 SHA 值，而是使用了 HEAD 参数。这是因为在 Git 中，HEAD 包含有特殊的含义，它代表了当前 Git 仓库所指向的 commit 引用，通常是最后一次提交的 commit 信息，Git 能够自动解析出 HEAD 的值并进行对比操作。使用当前代码库中最后一次提交的 commit SHA 值替换 HEAD，得到的效果是一样的。
+
+我们不仅仅能使用 HEAD 替代当前所在的 commit，还可以指向当前 commit 的父 commit 以及 父 commit 的父 commit 等等，直至指向 root-commit。其格式为： `HEAD^`，其中 `^` 的个数代表了向上数第几次 commit，如 `HEAD^` 代表 HEAD 的上层 commit， 而 `HEAD^^` 代表上层 commit 的 上层 commit。
+
+如果要指定的 commit 与当前 HEAD 相差多个 commit， 因此它还支持另一种写法：`HEAD~NUM`，其中 `NUM` 是一个整数，代表向上查找的第几次 commit，如 `HEAD~2` 等同于 `HEAD^^`。
+
+.通过 HEAD 向上查找指定的 commit 提交
+image::git-HEAD.png[git HEAD]
+
+示例：
+
+.相同效果
+[source, shell]
+----
+$ git diff HEAD^^
+
+$ git diff HEAD~2
+----
 
 === 暂存区 VS 代码库
 `--cached` 参数用于对比暂存区中的文件与本地代码库中的文件差异。
@@ -607,6 +634,8 @@ index 9f4d96d..1708e88 100644
 +Line2
 +Line3
 ----
+
+最后将所有改动提交到代码库中：`git commit -am "Add lines to hello.txt"`
 
 == git log: 查看历史提交记录
 每次使用 commit 命令提交修改后，Git 都会为我们自动生成一条提交记录，通过查看提交记录，我们可以很方便的知道代码库中有哪些历史改动。
