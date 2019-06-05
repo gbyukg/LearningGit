@@ -51,7 +51,7 @@ image::git-log-4.png[reset5]
 
 image::git-log-4.png[reset7]
 
-如果用`ls -ltr`,查看文件目录
+如果用 `ls -ltr` ,查看文件目录
 
 image::git-reset-2.png[reset6]
 
