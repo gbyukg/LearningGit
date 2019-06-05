@@ -1,0 +1,74 @@
+=== Git代码回退
+
+:imagesdir: ./images/git_reset/
+
+代码回退是一个所有程序员绕不开的话题，回退是指将代码从代码库回退到代码缓存区，或者从代码缓存区回退至代码编辑区，git提供git reset和git revert两种方式来实现代码的回退。
+
+==== git reset 回退代码
+git reset 是将代码的当前分支的指针，重新指向了一个新的节点。新的节点就是代码想要被回退的节点。git reset有三种模式 `git reset --soft`，`git reset --mixed`，`git reset --hard`。
+下面我们将利用一个测试库来做demo进行分别讲述。测试库有四个commit，分别的A，B，C，D，commit A做初始化工作，添加README.md文件；commit B 新增a.txt文件，并且写入a=1；commit C新增文件b.txt 并且写入a=2 b=1；commit D新增文件c.txt文件，
+并写入a=3 b=2 c=1。
+
+image::git-commit-history.png[git2]
+
+用 `git log` 查看提交记录，可见下图：
+
+image::git-log-1.png[log]
+
+* git reset --soft
+
+`git reset --soft` 仅回退 HEAD，保留暂存区和工作目录中的内容不变。简单的说，只是回退了commit信息。
+假如要将当前代码回退至commit C，也就是第三个提交节点，hash值是 `01a12c705902ecfd93455087a3130c1fbe857634` 。
+执行 `git reset --soft 01a12c705902ecfd93455087a3130c1fbe857634` ，然后用 `git status` 查看。
+
+image::git-status.png[reset1]
+
+由上图可以看到，代码已经从本地仓库区回退值代码缓存区。由于只是回退了commit信息，所以如果要重新提交，
+可以重新用 `git commit` 命令进行重新提交。然后用 `git log` 查看。
+
+image::git-log-2.png[reset2]
+由上图可以看出，代码已经被回退至C commit节点，然后被重新commit `(f980218ad81eddec2b302b28d59cd972c3b83c39)`。由上述讲述可知，`git reset --soft` 使用的场景，主要是在提交代码时，commit信息书写有问题，想要对于commit信息进行回退，然后重新进行提交。
+需要注意的是，重新commit之后，代码被提交到本地仓库，但是此时远端仓库(github)的代码依旧是在reset之前的。如果想用reset之后的代码对于远端库上面的代码进行覆盖(这种覆盖是极不推荐的，
+只是做demo讲述用，在实际工作中慎用。)可以执行 `git push -f` 进行代码推送。然后用 `git status && git log` 继续查看。
+
+* git reset --mixed
+
+`git reset --mixed` 回退 HEAD 和 暂存区，保留工作目录中的内容不变。它是将代码直接从本地仓库回退至代码编辑区。在对上述例子，执行 `git reset --mixed 01a12c705902ecfd93455087a3130c1fbe857634` 命令后，显示如下：
+
+image::git-log-3.png[reset3]
+
+从上图可以看到，代码都被回退到了工作区，文件a.txt b.txt 都出去modified的状态，而c.txt处于untrack状态。这就说明了使用 `git reset --mixed` 命令是将代码从本地仓库回退至代码编辑区。如果需要重新提交，可以按照提交三步曲 `git add && git commit -m && git push` 将代码提交至远端仓库。用 `git log` 可以看到最新提交信息。
+
+image::git-reset.png[reset4]
+
+* git reset --hard
+
+`git reset --hard` 命令可以将代码直接从本地仓库区直接回退至代码编辑区之前。拿上面的例子来讲，如果用 `git reset --hard 01a12c705902ecfd93455087a3130c1fbe857634` 命令将代码进行回退。可以看到
+
+image::git-log-4.png[reset5]
+
+然后用 `git log` 查看提交记录
+
+image::git-reset-2.png[reset6]
+
+如果用`ls -ltr`,查看文件目录
+
+image::git-log-4.png[reset7]
+
+可以看到文件c.txt文件不存在了。就证明了如果用 `git reset --hard` 命令，是将代码回退至代码编辑区之前，也就是说在将c.txt文件添加之前。
+从上面可以看到。`git reset` 命令回退代码，比较适合只是回退某一单的commit信息，或者想一次回退多单，并将回退后的代码对于远端库进行覆盖的场景。而且可以看到，当回退到commit C之后，再次进行提交时，commit D的提交历史将不会存在于提交历史中的。而这正是 `git reset` 与 `git revert` 最大的区别。
+
+==== git revert 回退代码
+`git revert` 也是回退某次提交，但是回退节点前和后的commit信息以及提交历史都不会丢失，而且会将此次撤销操作作为一个新的提交，从而形成一个新的commit节点。假如将代码用 `git revert` 命令回退至commit C，则最终的commit节点和提交历史，如下图
+
+image::git-commit-history-2.png[reset8]
+
+首先用 `git log` 查看提交记录，然后找到需要回退的commit id(比如 `f980218ad81eddec2b302b28d59cd972c3b83c39` )然后执行 `git revert f980218ad81eddec2b302b28d59cd972c3b83c39` ，可以看到如下信息：
+
+image::git-revet.png[revert9]
+
+回退过程中有可能会有冲突，如果有按照提示解决冲突之后，重新commit，然后再用 `git log` 查看提交记录
+
+image::git-log-5.png[revert10]
+
+可以清晰的看到回退节点 `f980218ad81eddec2b302b28d59cd972c3b83c39` 之后的提交记录 `d872f1cdb7d8a7153645fbfd1e3e9aef03d8fa5e` 和 `1e6249fa317f9185dfecfbf7304fe9717cc125dd` 都存在，并没有因为revert而被撤销，而且新增了一个节点 `40ce3df664fc3bdc38aa0a3e105ce4e9467b407c`,这就是 `git revert` 再执行代码回退时候，把整个回退操作当作一个commit，进行再次提交，从而进行记录。
