@@ -49,11 +49,11 @@ image::git-log-4.png[reset5]
 
 然后用 `git log` 查看提交记录
 
-image::git-reset-2.png[reset6]
+image::git-log-4.png[reset7]
 
 如果用`ls -ltr`,查看文件目录
 
-image::git-log-4.png[reset7]
+image::git-reset-2.png[reset6]
 
 可以看到文件c.txt文件不存在了。就证明了如果用 `git reset --hard` 命令，是将代码回退至代码编辑区之前，也就是说在将c.txt文件添加之前。
 从上面可以看到。`git reset` 命令回退代码，比较适合只是回退某一单的commit信息，或者想一次回退多单，并将回退后的代码对于远端库进行覆盖的场景。而且可以看到，当回退到commit C之后，再次进行提交时，commit D的提交历史将不会存在于提交历史中的。而这正是 `git reset` 与 `git revert` 最大的区别。
