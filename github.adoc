@@ -1,0 +1,252 @@
+=== Git代码回退
+
+:imagesdir: ./images/git_reset/
+
+代码回退是一个所有程序员绕不开的话题，回退是指将代码从本地代码库回退到代码暂存区，或者从代码暂存区回退至工作目录，git提供git reset和git revert两种方式来实现代码的回退。
+
+==== git reset 回退代码 
+git reset 是将代码的当前分支的指针，重新指向了一个新的节点。新的节点就是代码想要被回退的节点。git reset有三种模式 `git reset --soft`，`git reset --mixed`，`git reset --hard`。
+下面我们将利用一个测试库来做demo进行分别讲述。测试库有四个commit，分别的A，B，C，D，commit A 新增a.txt文件，并且写入a=1；commit B新增文件b.txt 并且写入b=1，同时修改a.txt中a的值为2；commit C新增文件c.txt文件，
+并写入c=1，同时修改b.txt中的b为2，c.txt中的c为1；commit D 为修改a.txt中的a为4，修改b.txt中的b为3，修改c.txt中的c为2。
+
+image::git-commit-1.png[git2]
+
+用 `git log` 查看提交记录：
+
+[source, shell]
+----
+$ git log
+commit b3046856a4027d7846d0e909ac21763cc9e17a53 (HEAD -> master)   <commit D>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:59:58 2019 +0800
+
+    fourth commit and a=4 b=3 c=2
+
+commit ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb                    <commit C>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:58:57 2019 +0800
+
+    third commit add c.txt and a=3 b=2 c=1
+
+commit f1b95f74a17193745a7a251db74221abc3f92e9c                    <commit B>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:56:01 2019 +0800
+
+    second commit add b.txt and a=2 b=1
+
+commit deed7fc69b5500936a0aa64d1f3255397a4cb5ac                    <commit A>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:54:51 2019 +0800
+
+    first commit add a.txt and a=1
+----
+
+
+* git reset --soft
+
+`git reset --soft` 仅回退 HEAD，保留暂存区和工作目录中的内容不变。假如要将当前代码回退至commit C，也就是第三个提交节点，hash值是 `ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` 。
+执行 `git reset --soft ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` ，然后用 `git status` 查看。
+
+[source,shell]
+----
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   a.txt
+	modified:   b.txt
+	modified:   c.txt
+----
+
+可以看到a.txt,b.txt,c.txt文件的状态均变成了modified，说明代码已经从本地代码库回退至代码暂存区。如果要重新提交，可以用 `git commit` 命令进行重新提交。然后用 `git log` 查看。
+[source,shell]
+----
+$ git log
+commit 7edc8860eadab72dda2fc69b46a6f1aa9a2534cc (HEAD -> master)  <commit D NEW>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 14:21:08 2019 +0800
+
+    reset --soft and commit again
+
+commit ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb            <commit C>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:58:57 2019 +0800
+
+    third commit add c.txt and a=3 b=2 c=1
+
+commit f1b95f74a17193745a7a251db74221abc3f92e9c            <commit B>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:56:01 2019 +0800
+
+    second commit add b.txt and a=2 b=1
+
+commit deed7fc69b5500936a0aa64d1f3255397a4cb5ac            <commit A>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:54:51 2019 +0800
+
+    first commit add a.txt and a=1
+----
+
+由上图可以看出，代码已经被回退至C commit节点，然后被重新commit `(7edc8860eadab72dda2fc69b46a6f1aa9a2534cc)`。
+* git reset --mixed
+
+`git reset --mixed` 回退HEAD和暂存区，保留工作目录中的内容不变。它是将代码直接从本地代码库回退至工作目录。在对上述例子，执行 `git reset --mixed ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` 命令后，显示如下：
+
+[source,shell]
+$ git reset --mixed ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb
+Unstaged changes after reset:
+M	a.txt
+M	b.txt
+M	c.txt
+
+TIP: 注意上面的一句话 `Unstaged changes after reset`, 这意味着代码处于Unstaged状态，接着用 `git status` 查看
+
+[source,shell]
+----
+$git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   a.txt
+	modified:   b.txt
+	modified:   c.txt
+----
+
+可以看到，代码都被回退到了工作目录区，文件a.txt b.txt c.txt都处于modified的状态。这就说明了使用 `git reset --mixed` 命令是将代码从本地仓库回退至工作目录区。如果需要重新提交，直接用 `git add && git commit -m` 将代码提交本地仓库。用 `git log` 可以查看提交信息。
+
+
+[source,shell]
+----
+$ git log
+commit f10a2131aa9382145323a404ceecf490f416573d (HEAD -> master)        <commit D reset --mixed>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 14:42:11 2019 +0800
+
+    reset --mixed and commit again
+
+commit ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb        <commit C>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:58:57 2019 +0800
+
+    third commit add c.txt and a=3 b=2 c=1
+
+commit f1b95f74a17193745a7a251db74221abc3f92e9c        <commit B>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:56:01 2019 +0800
+
+    second commit add b.txt and a=2 b=1
+
+commit deed7fc69b5500936a0aa64d1f3255397a4cb5ac        <commit A>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:54:51 2019 +0800
+
+    first commit add a.txt and a=1
+----
+
+* git reset --hard
+
+`git reset --hard` 回退全部三个工作区的内容。拿上面的例子来讲，如果用 `git reset --hard ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` 命令将代码进行回退。可以看到
+
+[source,shell]
+----
+$ git reset --hard ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb
+HEAD is now at ed58b06 third commit add c.txt and a=3 b=2 c=1
+
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+$ git log
+commit ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb (HEAD -> master)    <commit C>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:58:57 2019 +0800
+
+    third commit add c.txt and a=3 b=2 c=1
+
+commit f1b95f74a17193745a7a251db74221abc3f92e9c    <commit B>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:56:01 2019 +0800
+
+    second commit add b.txt and a=2 b=1
+
+commit deed7fc69b5500936a0aa64d1f3255397a4cb5ac    <commit A>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:54:51 2019 +0800
+
+    first commit add a.txt and a=1
+----
+
+WARNING: 仔细观察发现，工作目录区没有代码改动，代码暂存区没有代码要commit。但是从commit历史来看，只有A B C三个commit，原来的commit D不存在了。这是因为reset --hard将三个区的代码全部回退，也就是说"丢弃"了回退节点后面的所有commit，所以这就是reset --hard有风险的地方。一定要慎用。
+
+不管是 `git reset --soft`, `git reset --mixed` 还是 `git reset --hard` 回退代码时，都会将回退节点以后的commit(比如最开始的的commit D)全部丢弃，造成commit历史记录的不完整。这一点要非常注意。
+
+==== git revert 回退代码
+`git revert` 也是回退某次提交，但是回退节点前和后的commit信息以及提交历史都不会丢失，而且会将此次撤销操作作为一个新的提交，从而形成一个新的commit节点。假如将代码用 `git revert` 命令回退至commit C，则最终的commit节点和提交历史，如下图
+
+image::git-commit-2.png[reset8]
+
+假如我们还要回退至commit C这个节点，找到commit C的HASH值 `(ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb)`。执行命令 `git revert ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb`
+[source,shell]
+----
+$ git revert ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb
+error: could not revert ed58b06... third commit add c.txt and a=3 b=2 c=1
+hint: after resolving the conflicts, mark the corrected paths
+hint: with 'git add <paths>' or 'git rm <paths>'
+hint: and commit the result with 'git commit'
+----
+上面提示有冲突，用 `git status` 查看一下
+[source,shell]
+----
+$ git status
+On branch master
+You are currently reverting commit ed58b06.
+  (fix conflicts and run "git revert --continue")
+  (use "git revert --abort" to cancel the revert operation)
+
+Unmerged paths:
+  (use "git reset HEAD <file>..." to unstage)
+  (use "git add/rm <file>..." as appropriate to mark resolution)
+
+	both modified:   a.txt
+	both modified:   b.txt
+	deleted by them: c.txt
+----
+将存在于a.txt，b.txt文件中的冲突解决后执行 `git revert --continue`,然后将修改内容进行commit。接着用 `git log` 
+[source,shell]
+----
+$ git log
+commit ef2fc74679394cac1b51c19ec8ae4987ca3167c5 (HEAD -> master)    <commit C'>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 15:38:52 2019 +0800
+
+    revert and commit again
+
+commit 6582ef076a86c117f7ae9fabda9c056ac84b2333        <commit D>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 15:36:12 2019 +0800
+
+    fourth commit and a=4 b=3 c=2
+
+commit ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb        <commit C>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:58:57 2019 +0800
+
+    third commit add c.txt and a=3 b=2 c=1
+
+commit f1b95f74a17193745a7a251db74221abc3f92e9c        <commit B>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:56:01 2019 +0800
+
+    second commit add b.txt and a=2 b=1
+
+commit deed7fc69b5500936a0aa64d1f3255397a4cb5ac        <commit A>
+Author: xiaomage <majinghe@cn.ibm.com>
+Date:   Thu Jun 6 13:54:51 2019 +0800
+
+    first commit add a.txt and a=1
+----
+
+可以清晰的看到，回退节点 `ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` 之后的提交记录 `6582ef076a86c117f7ae9fabda9c056ac84b2333` (commit D)也存在，并没有因为revert而被撤销，而且新增了一个节点 `ef2fc74679394cac1b51c19ec8ae4987ca3167c5`,这就是 `git revert` 在执行代码回退时候，把整个回退操作当作一个commit，进行再次提交，从而增加一个新的commit节点。
