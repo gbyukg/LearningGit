@@ -290,12 +290,10 @@ fatal: unable to auto-detect email address (got 'vagrant@ubuntu-bionic.(none)')
 <1> 错误提示，Git 需要知道是谁在提交代码。
 <2> Git 如何指定代码提交作者的信息。
 
-之所以出现这个错误，是因为每一次提交代码，都会生成一条提交记录，里面记录了代码的作者（姓名和邮箱）、提交时间、提交代码时的备注等信息。因此在提交代码前，我们需要告诉 Git 我们是谁，Git 通过读取配置文件来获取这些信息。
+之所以出现这个错误，是因为每一次提交代码，Git 都会自动生成一条提交记录，里面记录了代码的作者（姓名和邮箱）、提交时间、提交代码时的备注信息等。因此在提交代码前，我们需要告诉 Git 我们是谁，即当前 Git 的使用者信息。这些信息被保存在 Git 的配置文件中，每次提交时，Git 通过读取配置文件来获取这些信息。
 
 === 配置提交者信息
-由于是第一次使用 Git，还没有为 Git 设定任何配置文件，虽然大部分配置都有一个默认值，但是对用代码提交者的信息，我们必须手动为其配置。
-
-根据给定的提示信息，使用 `config` 命令为 Git 设置适当的值，更多关于 Git 配置相关信息，请参考 <git config>：
+Git 子命令 `config` 用于设定 Git 的配置信息，使用下面命令设置 Git 的用户信息：
 
 .为 Git 配置用户信息
 [source, shell]
@@ -303,8 +301,10 @@ fatal: unable to auto-detect email address (got 'vagrant@ubuntu-bionic.(none)')
 $ git config --global user.emali "zzeliang@cn.ibm.com"  #<1>
 $ git config --global user.name "zzeliang"              #<2>
 ----
-<1> 设定作者邮箱信息。
-<2> 设定作者姓名信息。
+<1> 设定当前 Git 用户的邮箱信息。
+<2> 设定当前 Git 用户的姓名信息。
+
+用户信息被保存在了 Git 配置文件的 `user` 模块下，
 
 还可以通过 `--get` 参数获取当前配置文件中的值。
 
