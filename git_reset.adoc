@@ -89,6 +89,7 @@ Date:   Thu Jun 6 13:54:51 2019 +0800
 ----
 
 由上图可以看出，代码已经被回退至C commit节点，然后被重新commit `(7edc8860eadab72dda2fc69b46a6f1aa9a2534cc)`。
+
 * git reset --mixed
 
 `git reset --mixed` 回退HEAD和暂存区，保留工作目录中的内容不变。它是将代码直接从本地代码库回退至工作目录。在对上述例子，执行 `git reset --mixed ed58b06f2fffa1c8892bd2f53a4927ed7598ffbb` 命令后，显示如下：
